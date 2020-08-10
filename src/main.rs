@@ -180,9 +180,11 @@ fn pid_lookup(path: &String) -> String {
 fn process_entries(hashmap: &HashMap<String,String>) {
     // create a vector that contains /proc/net/* entries separated by spaces
     // send them to parser per file
-    macro_rules! formatted_print {() => 
+    macro_rules! formatted_print_tcp {() => 
         ("\x1B[1;36m{: <8}\x1B[0m   {: <32}   {: <32}   {: <15}   {: <15}")}
-    let file_names = vec!["tcp", "tcp6", "udp", "udp6"];
+    macro_rules! formatted_print_udp {() => 
+        ("\x1B[1;35m{: <8}\x1B[0m   {: <32}   {: <32}   {: <15}   {: <15}")}
+    let file_names = vec!["tcp", "udp", "tcp6", "udp6"];
     for i in 0..file_names.len() {
         // for each /proc/net/* file, grab lines that contain entries
         let file_path = format!("/proc/net/{}", file_names[i]);
@@ -201,9 +203,16 @@ fn process_entries(hashmap: &HashMap<String,String>) {
             } else {
                 process = String::from("-");
             }
-            println!(formatted_print!(),
-                entry.protocol, entry.local, entry.remote.replace("0.0.0.0:0", "0.0.0.0:*")
-                    .replace(":::0", ":::*"), entry.state, process);
+            if entry.protocol == "tcp"
+                || entry.protocol == "tcp6" {
+                    println!(formatted_print_tcp!(),
+                        entry.protocol, entry.local, entry.remote.replace("0.0.0.0:0", "0.0.0.0:*")
+                            .replace(":::0", ":::*"), entry.state, process);
+                } else {
+                    println!(formatted_print_udp!(),
+                        entry.protocol, entry.local, entry.remote.replace("0.0.0.0:0", "0.0.0.0:*")
+                            .replace(":::0", ":::*"), entry.state, process);
+                }
         }
     }
 }
