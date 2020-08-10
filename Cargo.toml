@@ -1,5 +1,5 @@
 [package]
-name = "refactor"
+name = "nantup"
 version = "0.1.0"
 authors = ["h0mbre"]
 edition = "2018"
